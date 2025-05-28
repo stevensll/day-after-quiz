@@ -16,7 +16,9 @@ const openai = new OpenAI({
 console.log("OpenAI API Key loaded:", process.env.OPENAI_API_KEY ? "✅ Yes" : "❌ No");
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "https://stevensll.github.io"
+}));
 app.use(bodyParser.json());
 
 // Serve static files (e.g., index.html) from "public" folder
