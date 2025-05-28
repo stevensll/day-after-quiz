@@ -66,6 +66,9 @@
       <label for="rule2">2. What is the second rule of Blacker House?</label>
       <input type="text" id="rule2" name="rule2">
 
+      <label for="rule3">3. The Church and House of Blacker</label>
+      <input type="text" id="rule3" name="rule3">
+
       <button type="submit">Submit</button>
     </form>
 
@@ -77,17 +80,19 @@
       e.preventDefault();
       const rule1 = document.getElementById('rule1').value;
       const rule2 = document.getElementById('rule2').value;
+      const rule3 = document.getElementById('rule3').value;
 
       const response = await fetch('/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rule1, rule2 })
+        body: JSON.stringify({ rule1, rule2, rule3 })
       });
 
       const result = await response.json();
       document.getElementById('result').innerHTML = `
         <p>Answer 1: ${result.rule1}</p>
         <p>Answer 2: ${result.rule2}</p>
+        <p>Answer 3: ${result.rule3}</p>
       `;
     });
   </script>
