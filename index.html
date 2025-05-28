@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blacker House Rules</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #result {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Blacker House Rules</h1>
+    <form id="quizForm">
+      <label for="rule1">1. What is the first rule of Blacker House?</label>
+      <input type="text" id="rule1" name="rule1">
+
+      <label for="rule2">2. What is the second rule of Blacker House?</label>
+      <input type="text" id="rule2" name="rule2">
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('quizForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const rule1 = document.getElementById('rule1').value;
+      const rule2 = document.getElementById('rule2').value;
+
+      const response = await fetch('/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rule1, rule2 })
+      });
+
+      const result = await response.json();
+      document.getElementById('result').innerHTML = `
+        <p>Answer 1: ${result.rule1}</p>
+        <p>Answer 2: ${result.rule2}</p>
+      `;
+    });
+  </script>
+</body>
+</html>
