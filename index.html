@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blacker House Rules</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blacker House Rules "Puzzle"</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,8 +26,15 @@
     }
     h1 {
       font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+      text-align: center;
+    }
+    .disclaimer {
+      font-size: 0.875rem;
+      color: #777;
       margin-bottom: 1rem;
       text-align: center;
+      font-style: italic;
     }
     label {
       font-weight: bold;
@@ -59,15 +66,16 @@
 <body>
   <div class="container">
     <h1>Blacker House Rules</h1>
+    <div class="disclaimer">This was "vibe coded" with GPT. Backend API uses GPT 3.5</div>
     <form id="quizForm">
       <label for="rule1">1. What is the first rule of Blacker House?</label>
-      <input type="text" id="rule1" name="rule1">
+      <input type="text" id="rule1" name="rule1" />
 
       <label for="rule2">2. What is the second rule of Blacker House?</label>
-      <input type="text" id="rule2" name="rule2">
+      <input type="text" id="rule2" name="rule2" />
 
       <label for="rule3">3. The Church and House of Blacker</label>
-      <input type="text" id="rule3" name="rule3">
+      <input type="text" id="rule3" name="rule3" />
 
       <button type="submit">Submit</button>
     </form>
@@ -76,24 +84,53 @@
   </div>
 
   <script>
-    document.getElementById('quizForm').addEventListener('submit', async (e) => {
+    const form = document.getElementById('quizForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
       const rule1 = document.getElementById('rule1').value;
       const rule2 = document.getElementById('rule2').value;
       const rule3 = document.getElementById('rule3').value;
 
-      const response = await fetch('/evaluate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rule1, rule2, rule3 })
+      // Remove old results under inputs if any
+      ['rule1', 'rule2', 'rule3'].forEach(id => {
+        const oldMsg = document.getElementById(`${id}-result`);
+        if (oldMsg) oldMsg.remove();
       });
 
-      const result = await response.json();
-      document.getElementById('result').innerHTML = `
-        <p>Answer 1: ${result.rule1}</p>
-        <p>Answer 2: ${result.rule2}</p>
-        <p>Answer 3: ${result.rule3}</p>
-      `;
+      // Show checking message below submit button
+      resultDiv.innerHTML = '<p>Checking answers...</p>';
+
+      try {
+        const response = await fetch('http://localhost:3000/evaluate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rule1, rule2, rule3 }),
+        });
+
+        if (!response.ok) throw new Error('Failed to get response');
+
+        const result = await response.json();
+
+        resultDiv.innerHTML = ''; // clear loading text
+
+        // Show result below each input, in red
+        ['rule1', 'rule2', 'rule3'].forEach((rule, i) => {
+          const inputElem = document.getElementById(rule);
+          const p = document.createElement('p');
+          p.id = `${rule}-result`;
+          p.style.color = 'red';
+          p.style.marginTop = '0.25rem';
+          p.style.marginBottom = '1rem';
+          p.textContent = `Answer ${i + 1}: ${result[rule] || 'No result'}`;
+          inputElem.insertAdjacentElement('afterend', p);
+        });
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+        console.error(err);
+      }
     });
   </script>
 </body>
