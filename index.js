@@ -1,16 +1,13 @@
-const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
-
 require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
+const { OpenAI } = require('openai');
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-const { OpenAI } = require('openai');
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -18,6 +15,19 @@ const openai = new OpenAI({
 
 console.log("OpenAI API Key loaded:", process.env.OPENAI_API_KEY ? "✅ Yes" : "❌ No");
 
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// Serve static files (e.g., index.html) from "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Health check for debugging
+app.get('/health', (req, res) => {
+  res.send('Server is running');
+});
+
+// Test OpenAI connection
 async function testConnection() {
   try {
     const response = await openai.chat.completions.create({
@@ -32,9 +42,7 @@ async function testConnection() {
 
 testConnection();
 
-app.use(cors());
-app.use(bodyParser.json());
-
+// Quiz grading endpoint
 app.post('/evaluate', async (req, res) => {
   const { rule1, rule2, rule3 } = req.body;
 
@@ -45,19 +53,18 @@ app.post('/evaluate', async (req, res) => {
 You are grading open-ended answers to 3 questions about Blacker House. 
 Here are the correct answers in natural language:
 
-1. The first rule is Do not talk about "Blacker House". So the response should be anything
-similar, i.e. "don't talk about it", "don't talk about blacker", "don't talk about the house" or similar.
-2. The second rule is the same as the first, so evaluate with the above rule.
-3. The third rule should be "The Two Being One and Inseparable", evaluate as long as the words are in correct order,
-but the spelling and capitalization could be slightly wrong. Numbers can also be used. Again, the spelling
-does not need to be exactly right, but close for each word.
+1. The first rule is: Do not talk about "Blacker House". So the response should be anything
+similar, e.g., "don't talk about it", "don't talk about blacker", "don't talk about the house".
+2. The second rule is the same as the first.
+3. The third rule should be "The Two Being One and Inseparable". It's correct if the words are in the right order,
+even if slightly misspelled or using numbers.
 
 Respond in JSON like this:
 {
   "rule1": "Correct" or "Incorrect",
   "rule2": "Correct" or "Incorrect",
   "rule3": "Correct" or "Incorrect"
-}f
+}
       `.trim()
     },
     {
@@ -80,11 +87,13 @@ Grade them now.
       messages,
     });
 
+    const reply = chat.choices[0].message.content;
+
     let result;
     try {
-      result = JSON.parse(chat.choices[0].message.content);
+      result = JSON.parse(reply);
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
+      console.error('JSON parse error:', parseError, '\nReply content:\n', reply);
       return res.status(500).json({ error: 'Invalid JSON received from OpenAI.' });
     }
 
@@ -96,5 +105,5 @@ Grade them now.
 });
 
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.log(`🚀 Server listening on port ${port}`);
 });

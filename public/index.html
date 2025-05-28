@@ -104,12 +104,12 @@
       resultDiv.innerHTML = '<p>Checking answers...</p>';
 
       try {
-          const response = await fetch('/evaluate', {
+          const backendUrl = 'https://purple-goose-4534.ngrok.io/evaluate'; // or http://localhost:3000/evaluate for local
+          const response = await fetch(backendUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rule1, rule2, rule3 }),
         });
-
         if (!response.ok) throw new Error('Failed to get response');
 
         const result = await response.json();
