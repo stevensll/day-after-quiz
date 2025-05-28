@@ -1,3 +1,6 @@
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+
 require('dotenv').config();
 
 const express = require('express');
@@ -54,7 +57,7 @@ Respond in JSON like this:
   "rule1": "Correct" or "Incorrect",
   "rule2": "Correct" or "Incorrect",
   "rule3": "Correct" or "Incorrect"
-}
+}f
       `.trim()
     },
     {
