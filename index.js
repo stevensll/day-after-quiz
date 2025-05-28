@@ -43,8 +43,6 @@ async function testConnection() {
 }
 
 testConnection();
-
-// Quiz grading endpoint
 app.post('/evaluate', async (req, res) => {
   const { rule1, rule2, rule3 } = req.body;
 
@@ -52,21 +50,44 @@ app.post('/evaluate', async (req, res) => {
     {
       role: 'system',
       content: `
-You are grading open-ended answers to 3 questions about Blacker House. 
-Here are the correct answers in natural language:
+You are grading open-ended responses to 3 questions about the rules of Blacker House.
 
-1. The first rule is: Do not talk about "Blacker House". So the response should be anything
-similar, e.g., "don't talk about it", "don't talk about blacker", "don't talk about the house".
-2. The second rule is the same as the first.
-3. The third rule should be "The Two Being One and Inseparable". It's correct if the words are in the right order,
-even if slightly misspelled or using numbers.
+Grade the answers using the following rules and format your response in strict JSON.
 
-Respond in JSON like this:
+RULE 1 and RULE 2:
+- The correct answer is: "Do not talk about Blacker House"
+- Acceptable variations include similar phrasing such as:
+  - "Don't talk about it"
+  - "You do not talk about Blacker House"
+  - "Do not talk about the house"
+- For Rule 2, also accept: "Same as rule one", or equivalent phrasing.
+- Use your best judgment for paraphrased versions.
+- For each, include a detailed explanation for your decision.
+
+RULE 3:
+- The correct answer is: "The Two Being One and Inseparable"
+- Allow minor spelling or capitalization errors
+- Accept numbers for words (e.g., "2" for "Two")
+- All four words must be present and in the correct order
+
+FORMAT:
+Respond strictly in this JSON format:
+
 {
-  "rule1": "Correct" or "Incorrect",
-  "rule2": "Correct" or "Incorrect",
-  "rule3": "Correct" or "Incorrect"
+  "rule1": {
+    "grade": "Correct" or "Incorrect",
+    "explanation": "Why this answer is correct or incorrect"
+  },
+  "rule2": {
+    "grade": "Correct" or "Incorrect",
+    "explanation": "Why this answer is correct or incorrect"
+  },
+  "rule3": {
+    "grade": "Correct" or "Incorrect",
+    "explanation": "Why this answer is correct or incorrect"
+  }
 }
+
       `.trim()
     },
     {
@@ -99,7 +120,18 @@ Grade them now.
       return res.status(500).json({ error: 'Invalid JSON received from OpenAI.' });
     }
 
-    res.json(result);
+    // Log full detailed reasoning on the server
+    console.log('Detailed grading explanation:', result);
+
+    // Extract just the grades to send back to client
+    const minimalResult = {
+      rule1: result.rule1.grade,
+      rule2: result.rule2.grade,
+      rule3: result.rule3.grade,
+    };
+
+    res.json(minimalResult);
+
   } catch (err) {
     console.error('OpenAI error:', err);
     res.status(500).json({ error: 'Something went wrong with evaluation.' });
