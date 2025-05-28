@@ -63,6 +63,7 @@ RULE 1 and RULE 2:
 - For Rule 2, also accept: "Same as rule one", or equivalent phrasing.
 - Use your best judgment for paraphrased versions.
 - For each, include a detailed explanation for your decision.
+- Do not accept blank answers or random letters.
 
 RULE 3:
 - The correct answer is: "The Two Being One and Inseparable"

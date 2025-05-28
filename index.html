@@ -88,22 +88,19 @@
     const resultDiv = document.getElementById('result');
     const submitBtn = document.getElementById('submitBtn');
 
-    let lastSubmitted = 0;
+    let isSubmitting = false;
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const now = Date.now();
-      if (now - lastSubmitted < 200) {
-        return; // rate limit 200ms
-      }
-      lastSubmitted = now;
+      if (isSubmitting) return;
+      isSubmitting = true;
+      submitBtn.disabled = true;
 
       const rule1 = document.getElementById('rule1').value.trim();
       const rule2 = document.getElementById('rule2').value.trim();
       const rule3 = document.getElementById('rule3').value.trim();
 
-      // Remove old results under inputs
       ['rule1', 'rule2', 'rule3'].forEach(id => {
         const oldMsg = document.getElementById(`${id}-result`);
         if (oldMsg) oldMsg.remove();
@@ -118,12 +115,12 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rule1, rule2, rule3 }),
         });
+
         if (!response.ok) throw new Error('Failed to get response');
 
         const result = await response.json();
-        resultDiv.innerHTML = ''; // clear loading text
+        resultDiv.innerHTML = '';
 
-        // Show result below each input with color
         ['rule1', 'rule2', 'rule3'].forEach((rule, i) => {
           const inputElem = document.getElementById(rule);
           const p = document.createElement('p');
@@ -138,6 +135,12 @@
       } catch (err) {
         resultDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
         console.error(err);
+      } finally {
+        // Add ~200ms delay before unlocking
+        setTimeout(() => {
+          isSubmitting = false;
+          submitBtn.disabled = false;
+        }, 200);
       }
     });
   </script>
