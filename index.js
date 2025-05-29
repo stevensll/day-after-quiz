@@ -60,7 +60,9 @@ RULE 1 and RULE 2:
   - "Don't talk about it"
   - "You do not talk about Blacker House"
   - "Do not talk about the house"
-- For Rule 2, also accept: "Same as rule one", or equivalent phrasing.
+- For Rule 2, also accept: "similar as rule one", or similar paraphrase such as
+  - "same as first"
+  - "the first rule"
 - Use your best judgment for paraphrased versions.
 - For each, include a detailed explanation for your decision.
 - Do not accept blank answers or random letters.
